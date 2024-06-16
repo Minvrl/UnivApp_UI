@@ -32,6 +32,10 @@ namespace Univ.Service.Profiles
             CreateMap<Student, StudentGetDto>()
                 .ForMember(dest => dest.Age, s => s.MapFrom(s => DateTime.Now.Year - s.BirthDate.Year))
                 .ForMember(dest => dest.ImageUrl, s => s.MapFrom(s => baseUrl + "uploads/students/" + s.FileName));
-        }
-    }
+			CreateMap<Student, StudentGetIdDto>()
+				.ForMember(dest => dest.BirthDate, s=> s.MapFrom(s=> s.BirthDate.ToString("dd MM yyyy HH:mm")))
+				.ForMember(dest => dest.ImageUrl, s => s.MapFrom(s => baseUrl + "uploads/students/" + s.FileName));
+
+		}
+	}
 }

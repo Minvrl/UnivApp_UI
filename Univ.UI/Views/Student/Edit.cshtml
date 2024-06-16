@@ -1,6 +1,6 @@
 ﻿@model StudentCreateRequest
 @{
-	ViewData["Title"] = "Create";
+	ViewData["Title"] = "Edit";
 }
 
 
@@ -15,7 +15,7 @@
 	</div>
 	<div class="row">
 		<div class="col-md-8 mx-auto">
-			<form class="user" asp-action="create" method="post" enctype="multipart/form-data">
+			<form class="user" asp-action="edit" method="post" enctype="multipart/form-data">
 				<div class="form-group">
 					<label for="Fullname">Fullname</label>
 					<input asp-for="Fullname" class="form-control" id="Fullname" placeholder=" ">
@@ -34,7 +34,8 @@
 				</div>
 				<div class="form-group">
 					<label for="GroupId">Group</label>
-					<select asp-for="GroupId" class="form-control" asp-items="@(new SelectList(ViewBag.Groups, nameof(GroupListItemGetResponse.Id), nameof(GroupListItemGetResponse.No)))">
+					<select asp-for="GroupId" class="form-control"
+							asp-items="@(new SelectList(ViewBag.Groups, nameof(GroupListItemGetResponse.Id), nameof(GroupListItemGetResponse.No), Model.GroupId))">
 						<option value="">Select a Group</option>
 					</select>
 					<span class="text-danger" asp-validation-for="GroupId"></span>
@@ -43,7 +44,7 @@
 				<div class="form-group">
 					<div class="col-md-6">
 						<label for="imgInput">File</label>
-						<input asp-for="File" class="form-control imgInput" placeholder=" ">
+						<input asp-for="File" class="form-control imgInput" value="@Model.File">
 						<div class="preview-box">
 							<img width="200" class="previewImg" />
 						</div>
@@ -53,7 +54,7 @@
 
 
 				<button class="btn btn-primary" type="submit">
-					Create Student
+					Edit Student
 				</button>
 			</form>
 		</div>

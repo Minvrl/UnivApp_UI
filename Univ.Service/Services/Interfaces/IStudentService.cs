@@ -11,7 +11,7 @@ namespace Univ.Service.Services.Interfaces
     {
         int Create(StudentCreateDto createDto);
         void Update(int id, StudentUpdateDto updateDto);
-        StudentGetDto GetById(int id);
+        StudentGetIdDto GetById(int id);
         List<StudentGetDto> GetAll(string? search = null);
 		PaginatedList<StudentGetDto> GetAllPaginated(int page = 1, int size = 10);
 		void Delete(int id);

@@ -84,13 +84,13 @@ namespace Univ.Service.Services.Implementations
             var students = _studentRepository.GetAll(x => search==null).ToList();
             return _mapper.Map<List<StudentGetDto>>(students);
         }
-        public StudentGetDto GetById(int id)
+        public StudentGetIdDto GetById(int id)
         {
             Student entity = _studentRepository.Get(x => x.Id == id && !x.IsDeleted);
 
             if (entity == null) throw new RestException(StatusCodes.Status404NotFound, "Student not found by given id");
 
-            return _mapper.Map<StudentGetDto>(entity);
+            return _mapper.Map<StudentGetIdDto>(entity);
 
         }
 

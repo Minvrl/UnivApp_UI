@@ -77,7 +77,7 @@ namespace Univ.UI.Controllers
 			using var content = new MultipartFormDataContent();
 			content.Add(new StringContent(create.Fullname), "Fullname");
 			content.Add(new StringContent(create.Email), "Email");
-			content.Add(new StringContent(create.Birthdate.ToString("dd MMM,yyyy")), "Birthdate"); 
+			content.Add(new StringContent(create.BirthDate.ToString("dd MM yyyy HH:mm")), "BirthDate"); 
 			content.Add(new StringContent(create.GroupId.ToString()), "GroupId");
 
 			if (create.File != null)
@@ -126,6 +126,145 @@ namespace Univ.UI.Controllers
 			{
 				TempData["Error"] = "Something went wrong!";
 				return View(create);
+			}
+		}
+
+
+
+		public async Task<IActionResult> Delete(int id)
+		{
+			_client.DefaultRequestHeaders.Add(HeaderNames.Authorization, Request.Cookies["token"]);
+
+			using (var response = await _client.DeleteAsync("https://localhost:7068/api/Students/" + id))
+			{
+				if (response.IsSuccessStatusCode)
+					return Ok();
+				else if (response.StatusCode == System.Net.HttpStatusCode.Unauthorized)
+					return Unauthorized();
+				else if (response.StatusCode == System.Net.HttpStatusCode.NotFound)
+					return NotFound();
+				else
+					return StatusCode(500);
+			}
+		}
+
+
+		public async Task<IActionResult> Edit(int id)
+		{
+			_client.DefaultRequestHeaders.Add(HeaderNames.Authorization, Request.Cookies["token"]);
+
+			using (var response = await _client.GetAsync("https://localhost:7068/api/Students/" + id))
+			{
+				if (response.IsSuccessStatusCode)
+				{
+					var options = new JsonSerializerOptions() { PropertyNameCaseInsensitive = true };
+					StudentCreateRequest request = JsonSerializer.Deserialize<StudentCreateRequest>(await response.Content.ReadAsStringAsync(), options);
+
+					var groupsResponse = await _client.GetAsync("https://localhost:7068/api/groups");
+					if (groupsResponse.IsSuccessStatusCode)
+					{
+						var bodyStr = await groupsResponse.Content.ReadAsStringAsync();
+						List<GroupResponse> groups = JsonSerializer.Deserialize<List<GroupResponse>>(bodyStr, options);
+						ViewBag.Groups = groups;
+						Console.WriteLine("Groups fetched from API:");
+						groups.ForEach(g => Console.WriteLine($"Id: {g.Id}, No: {g.No}"));
+					}
+					else
+					{
+						ViewBag.Groups = new List<GroupResponse>();
+						TempData["Error"] = "Failed to load groups.";
+					}
+
+					return View(request);
+				}
+				else if (response.StatusCode == System.Net.HttpStatusCode.Unauthorized)
+					return RedirectToAction("login", "account");
+				else if (response.StatusCode == System.Net.HttpStatusCode.NotFound)
+					TempData["Error"] = "Student not found";
+				else
+					TempData["Error"] = "Something went wrong!";
+			}
+
+			return RedirectToAction("index");
+		}
+
+
+		[HttpPost]
+		public async Task<IActionResult> Edit(StudentCreateRequest edit, int id)
+		{
+			_client.DefaultRequestHeaders.Add(HeaderNames.Authorization, Request.Cookies["token"]);
+
+			if (!ModelState.IsValid)
+			{
+				await LoadGroups();
+				return View(edit);
+			}
+
+			using var content = new MultipartFormDataContent();
+			content.Add(new StringContent(edit.Fullname), "Fullname");
+			content.Add(new StringContent(edit.Email), "Email");
+			content.Add(new StringContent(edit.BirthDate.ToString("dd MM yyyy HH:mm")), "Birthdate");
+			content.Add(new StringContent(edit.GroupId.ToString()), "GroupId");
+
+			if (edit.File != null)
+			{
+				var streamContent = new StreamContent(edit.File.OpenReadStream());
+				streamContent.Headers.ContentDisposition = new System.Net.Http.Headers.ContentDispositionHeaderValue("form-data")
+				{
+					Name = "File",
+					FileName = edit.File.FileName
+				};
+				streamContent.Headers.ContentType = new System.Net.Http.Headers.MediaTypeHeaderValue(edit.File.ContentType);
+
+				content.Add(streamContent, "File", edit.File.FileName);
+			}
+
+
+			using (HttpResponseMessage response = await _client.PutAsync("https://localhost:7068/api/Students/"+id, content))
+			{
+				if (response.IsSuccessStatusCode)
+				{
+					return RedirectToAction("Index");
+				}
+				else if (response.StatusCode == System.Net.HttpStatusCode.Unauthorized)
+				{
+					return RedirectToAction("login", "account");
+				}
+				else if (response.StatusCode == System.Net.HttpStatusCode.BadRequest)
+				{
+					var options = new JsonSerializerOptions { PropertyNameCaseInsensitive = true };
+					var errorResponse = JsonSerializer.Deserialize<ErrorResponse>(await response.Content.ReadAsStringAsync(), options);
+
+					foreach (var err in errorResponse.Errors)
+					{
+						ModelState.AddModelError(err.Key, err.Message);
+					}
+
+					await LoadGroups();
+					return View(edit);
+				}
+				else
+				{
+					TempData["Error"] = "Something went wrong!";
+					return RedirectToAction("Index");
+				}
+			}
+		}
+
+		private async Task LoadGroups()
+		{
+			var groupsResponse = await _client.GetAsync("https://localhost:7068/api/groups");
+			if (groupsResponse.IsSuccessStatusCode)
+			{
+				var bodyStr = await groupsResponse.Content.ReadAsStringAsync();
+				var options = new JsonSerializerOptions { PropertyNameCaseInsensitive = true };
+				List<GroupResponse> groups = JsonSerializer.Deserialize<List<GroupResponse>>(bodyStr, options);
+				ViewBag.Groups = new SelectList(groups, nameof(GroupResponse.Id), nameof(GroupResponse.No));
+			}
+			else
+			{
+				ViewBag.Groups = new SelectList(new List<GroupResponse>(), nameof(GroupResponse.Id), nameof(GroupResponse.No));
+				TempData["Error"] = "Failed to load groups.";
 			}
 		}
 

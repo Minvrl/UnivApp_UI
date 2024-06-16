@@ -4,7 +4,7 @@
     {
         public string Fullname { get; set; }
         public string Email { get; set; }
-        public DateTime Birthdate { get; set; }
+        public DateTime BirthDate { get; set; }
         public int GroupId { get; set; }
         public IFormFile? File { get; set; }
     }

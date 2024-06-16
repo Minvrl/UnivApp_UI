@@ -1,4 +1,25 @@
-﻿$(".delete-btn").click(function (e) {
+﻿$(".imgInput").change(function (e) {
+    let box = $(this).parent().find(".preview-box");
+    $(box).find(".previewImg").remove();
+
+    for (var i = 0; i < e.target.files.length; i++) {
+
+        let img = document.createElement("img");
+        img.style.width = "200px";
+        img.classList.add("previewImg");
+
+        let reader = new FileReader();
+        console.log(e.target.nextElementSibling);
+        reader.readAsDataURL(e.target.files[i]);
+        reader.onload = () => {
+            img.setAttribute("src", reader.result);
+            $(box).append(img)
+        }
+    }
+})
+
+
+$(".delete-btn").click(function (e) {
     e.preventDefault();
 
     let url = $(this).attr("href");
