@@ -13,6 +13,7 @@ namespace Univ.Service.Services.Interfaces
         void Update(int id, StudentUpdateDto updateDto);
         StudentGetDto GetById(int id);
         List<StudentGetDto> GetAll(string? search = null);
-        void Delete(int id);
+		PaginatedList<StudentGetDto> GetAllPaginated(int page = 1, int size = 10);
+		void Delete(int id);
     }
 }

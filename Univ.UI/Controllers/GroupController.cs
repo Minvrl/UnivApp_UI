@@ -1,39 +1,44 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.Net.Http.Headers;
 using System.Text;
 using System.Text.Json;
+using Univ.UI.Filters;
 using Univ.UI.Models;
 
 namespace Univ.UI.Controllers
 {
+    [ServiceFilter(typeof(AuthFilter))]
     public class GroupController:Controller
     {
+		
 		private HttpClient _client;
 		public GroupController()
 		{
 			_client = new HttpClient();
 		}
-		public async Task<IActionResult> Index(int page = 1)
+        public async Task<IActionResult> Index(int page = 1)
         {
-            using (HttpClient client = new HttpClient())
+            _client.DefaultRequestHeaders.Add(HeaderNames.Authorization, Request.Cookies["token"]);
+            using (var response = await _client.GetAsync("https://localhost:7068/api/Groups?page=" + page + "&size=2"))
             {
-                using (var response = await client.GetAsync("https://localhost:7068/api/Groups?page=" + page + "&size=2"))
+                if (response.IsSuccessStatusCode)
                 {
-                    if (response.IsSuccessStatusCode)
-                    {
-                        var bodyStr = await response.Content.ReadAsStringAsync();
+                    var bodyStr = await response.Content.ReadAsStringAsync();
 
-                        var options = new JsonSerializerOptions() { PropertyNameCaseInsensitive = true };
-                        PaginatedResponse<GroupListItemGetResponse> data = JsonSerializer.Deserialize<PaginatedResponse<GroupListItemGetResponse>>(bodyStr, options);
-                        return View(data);
-                    }
-                    else
-                    {
-                        return RedirectToAction("error", "home");
-                    }
+                    var options = new JsonSerializerOptions() { PropertyNameCaseInsensitive = true };
+                    PaginatedResponse<GroupListItemGetResponse> data = JsonSerializer.Deserialize<PaginatedResponse<GroupListItemGetResponse>>(bodyStr, options);
+                    if (data.TotalPages < page) return RedirectToAction("index", new { page = data.TotalPages });
+
+                    return View(data);
                 }
+                else if (response.StatusCode == System.Net.HttpStatusCode.Unauthorized)
+                    return RedirectToAction("login", "account");
+                else
+                    return RedirectToAction("error", "home");
             }
         }
+
 
         public IActionResult Create()
         {
@@ -43,7 +48,7 @@ namespace Univ.UI.Controllers
         [HttpPost]
         public async Task<IActionResult> Create(GroupCreateRequest create)
         {
-			//_client.DefaultRequestHeaders.Add(HeaderNames.Authorization, Request.Cookies["token"]);
+			_client.DefaultRequestHeaders.Add(HeaderNames.Authorization, Request.Cookies["token"]);
 			if (!ModelState.IsValid) return View();
             var content = new StringContent(JsonSerializer.Serialize(create),Encoding.UTF8,"application/json");
             using(HttpResponseMessage response = await _client.PostAsync("https://localhost:7068/api/Groups", content))
@@ -70,7 +75,7 @@ namespace Univ.UI.Controllers
 
 		public async Task<IActionResult> Edit(int id)
 		{
-			//_client.DefaultRequestHeaders.Add(HeaderNames.Authorization, Request.Cookies["token"]);
+			_client.DefaultRequestHeaders.Add(HeaderNames.Authorization, Request.Cookies["token"]);
 
 			using (var response = await _client.GetAsync("https://localhost:7068/api/Groups/" + id))
 			{
@@ -95,7 +100,7 @@ namespace Univ.UI.Controllers
 		[HttpPost]
 		public async Task<IActionResult> Edit(GroupCreateRequest edit, int id)
 		{
-			//_client.DefaultRequestHeaders.Add(HeaderNames.Authorization, Request.Cookies["token"]);
+			_client.DefaultRequestHeaders.Add(HeaderNames.Authorization, Request.Cookies["token"]);
 
 			if (!ModelState.IsValid) return View();
 
@@ -130,7 +135,7 @@ namespace Univ.UI.Controllers
 
         public async Task<IActionResult> Delete(int id)
         {
-            //_client.DefaultRequestHeaders.Add(HeaderNames.Authorization, Request.Cookies["token"]);
+            _client.DefaultRequestHeaders.Add(HeaderNames.Authorization, Request.Cookies["token"]);
 
             using (var response = await _client.DeleteAsync("https://localhost:7068/api/Groups/" + id))
             {

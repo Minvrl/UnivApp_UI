@@ -28,11 +28,17 @@ namespace Univ.API.Controllers
             return StatusCode(201, new { Id = _studentService.Create(createDto) });
         }
 
-        [HttpGet("")]
-        public ActionResult<List<GroupGetDto>> GetAll()
-        {
-            return Ok(_studentService.GetAll());
-        }
+		[HttpGet("")]
+		public ActionResult<PaginatedList<StudentGetDto>> GetAll(int page = 1, int size = 10)
+		{
+			return Ok(_studentService.GetAllPaginated(page, size));
+		}
+
+        //[HttpGet("")]
+        //public ActionResult<List<GroupGetDto>> GetAllStudents()
+        //{
+        //    return Ok(_studentService.GetAll());
+        //}
 
         [HttpPut("{id}")]
         public ActionResult Update([FromRoute] int id, [FromBody] StudentUpdateDto updateDto)

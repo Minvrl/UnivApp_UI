@@ -22,6 +22,11 @@
 
 </head>
 
+@if (TempData["Error"] != null)
+{
+    <span style="display:none" id="error-message" data-message="@TempData["Error"]"></span>
+}
+
 <body id="page-top">
 
     <!-- Page Wrapper -->
@@ -67,7 +72,7 @@
 
             <!-- Nav Item - Tables -->
             <li class="nav-item">
-                <a class="nav-link" href="tables.html">
+                <a class="nav-link" asp-controller="student" asp-action="index">
                     <i class="fas fa-fw fa-table"></i>
                     <span>Students</span>
                 </a>
@@ -135,6 +140,14 @@
     <!-- Page level custom scripts -->
     <script src="~/js/demo/chart-area-demo.js"></script>
     <script src="~/js/demo/chart-pie-demo.js"></script>
+    <script>
+        let errorSpan = document.getElementById("error-message");
+
+        if (errorSpan) {
+            alert(errorSpan.getAttribute("data-message"))
+        }
+
+    </script>
     @RenderSection("scripts",required:false)
     <script src="~/js/main.js"></script>
 </body>

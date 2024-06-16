@@ -32,7 +32,17 @@ namespace Univ.Service.Services.Implementations
             _studentRepository = studentRepository;
             _mapper = mapper;
         }
-        public int Create(StudentCreateDto createDto)
+
+		public PaginatedList<StudentGetDto> GetAllPaginated(int page = 1, int size = 10)
+		{
+			var query = _studentRepository.GetAll(x => !x.IsDeleted);
+
+			PaginatedList<Student> students = PaginatedList<Student>.Create(query, page, size);
+
+			return new PaginatedList<StudentGetDto>(_mapper.Map<List<StudentGetDto>>(students.Items), students.TotalPages, students.PageIndex, students.PageSize);
+		}
+
+		public int Create(StudentCreateDto createDto)
         {
             Group group = _groupRepository.Get(x => x.Id == createDto.GroupId && !x.IsDeleted, "Students");
 
