@@ -18,13 +18,15 @@ namespace Univ.Service.Services.Implementations
 {
     public class GroupService : IGroupService
     {
+        private AppDbContext _context;
         private readonly IGroupRepository _groupRepository;
         private readonly IMapper _mapper;
 
-        public GroupService(IGroupRepository groupRepository, IMapper mapper)
+        public GroupService(IGroupRepository groupRepository, IMapper mapper,AppDbContext context)
         {
             _groupRepository = groupRepository;
             _mapper = mapper;
+            _context = context;
         }
         public int Create(GroupCreateDto createDto)
         {
@@ -53,21 +55,17 @@ namespace Univ.Service.Services.Implementations
             _groupRepository.Save();
         }
 
-        public List<GroupGetDto> GetAll(string? search = null)
-        {
-            Expression<Func<Group, bool>> predicate = x =>
-                (search == null || x.No.Contains(search)) && !x.IsDeleted;
+		public List<GroupGetDto> GetAll()
+		{
+			return _groupRepository.GetAll(x => !x.IsDeleted).Select(x => new GroupGetDto
+			{
+				Id = x.Id,
+				No = x.No,
+			}).ToList();
+		}
 
-            return _groupRepository.GetAll(predicate, "Students")
-                                    .Select(x => new GroupGetDto
-                                    {
-                                        Id = x.Id,
-                                        No = x.No,
-                                        Limit = x.Limit
-                                    }).ToList();
-        }
 
-        public GroupGetDto GetById(int id)
+		public GroupGetDto GetById(int id)
         {
             Group entity = _groupRepository.Get(x => x.Id == id && !x.IsDeleted, includes: "Students");
 

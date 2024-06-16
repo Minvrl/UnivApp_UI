@@ -5,7 +5,7 @@
         public int Id { get; set; }
         public string No { get; set; }
         public byte Limit { get; set; }
-        public int StudentCount {  get; set; }
+        public int StudentsCount {  get; set; }
 
     }
 }

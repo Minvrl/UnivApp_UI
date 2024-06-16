@@ -20,7 +20,7 @@ namespace Univ.UI.Controllers
         public async Task<IActionResult> Index(int page = 1)
         {
             _client.DefaultRequestHeaders.Add(HeaderNames.Authorization, Request.Cookies["token"]);
-            using (var response = await _client.GetAsync("https://localhost:7068/api/Groups?page=" + page + "&size=2"))
+            using (var response = await _client.GetAsync("https://localhost:7068/api/Groups/paginated?page=" + page + "&size=2"))
             {
                 if (response.IsSuccessStatusCode)
                 {

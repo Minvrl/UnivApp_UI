@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Univ.Core.Entities;
 using Univ.Service.Dtos;
 
 namespace Univ.Service.Services.Interfaces
@@ -13,7 +14,7 @@ namespace Univ.Service.Services.Interfaces
         void Update(int id, GroupUpdateDto updateDto);
         GroupGetDto GetById(int id);
 		PaginatedList<GroupGetDto> GetAllByPage(string? search = null, int page = 1, int size = 10);
-		//List<GroupGetDto> GetAll(string? search = null);
+		List<GroupGetDto> GetAll();
         void Delete(int id);
     }
 }

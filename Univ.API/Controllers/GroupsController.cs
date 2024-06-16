@@ -21,18 +21,18 @@ namespace Univ.API.Controllers
             _groupService = groupService;
         }
 
-		[HttpGet("")]
-		public ActionResult<PaginatedList<GroupGetDto>> GetAll(string? search = null, int page = 1, int size = 10)
+		[HttpGet("paginated")]
+		public ActionResult<PaginatedList<GroupGetDto>> GetAllPaginated(string? search = null, int page = 1, int size = 10)
 		{
 			return StatusCode(200, _groupService.GetAllByPage(search, page, size));
 		}
 
 
-		//[HttpGet("")]
-  //      public ActionResult<List<GroupGetDto>> GetAll()
-  //      {
-  //          return StatusCode(200, _groupService.GetAll());
-  //      }
+        [HttpGet("")]
+        public ActionResult<List<GroupGetDto>> GetAll()
+        {
+            return StatusCode(200, _groupService.GetAll());
+        }
 
         [HttpGet("{id}")]
 

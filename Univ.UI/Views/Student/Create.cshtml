@@ -1,0 +1,66 @@
+﻿@model StudentCreateRequest
+@{
+	ViewData["Title"] = "Create";
+}
+
+
+
+<!-- Begin Page Content -->
+<div class="container-fluid">
+
+	<!-- Page Heading -->
+	<div class="d-sm-flex align-items-center justify-content-between mb-4">
+		<h1 class="h3 mb-0 text-gray-800 mx-auto">Students</h1>
+
+	</div>
+	<div class="row">
+		<div class="col-md-8 mx-auto">
+			<form class="user" asp-action="create" method="post" enctype="multipart/form-data">
+				<div class="form-group">
+					<label for="Fullname">Fullname</label>
+					<input asp-for="Fullname" class="form-control" id="Fullname" placeholder=" ">
+					<span class="text-danger" asp-validation-for="Fullname"></span>
+				</div>
+				<div class="form-group">
+					<label for="Email">Email</label>
+					<input asp-for="Email" class="form-control" id="Email" placeholder=" ">
+					<span class="text-danger" asp-validation-for="Email"></span>
+				</div>
+
+				<div class="form-group">
+					<label for="Order">Birthdate</label>
+					<input asp-for="Birthdate" class="form-control" id="Birthdate" placeholder=" ">
+					<span class="text-danger" asp-validation-for="Birthdate"></span>
+				</div>
+				<div class="form-group">
+					<label for="GroupId">Group</label>
+					<select asp-for="GroupId" class="form-control" asp-items="@(new SelectList(ViewBag.Groups, nameof(GroupListItemGetResponse.Id), nameof(GroupListItemGetResponse.No)))">
+						<option value="">Select a Group</option>
+					</select>
+					<span class="text-danger" asp-validation-for="GroupId"></span>
+				</div>
+
+				<div class="form-group">
+					<div class="col-md-6">
+						<label for="imgInput">File</label>
+						<input asp-for="File" class="form-control imgInput" placeholder=" ">
+						<div class="preview-box">
+							<img width="200" class="previewImg" />
+						</div>
+						<span class="text-danger" asp-validation-for="File"></span>
+					</div>
+				</div>
+
+
+				<button class="btn btn-primary" type="submit">
+					Create Student
+				</button>
+			</form>
+		</div>
+	</div>
+</div>
+
+@section scripts {
+	@Html.Partial("_ValidationScriptsPartial");
+}
+
