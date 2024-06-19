@@ -94,26 +94,41 @@ namespace Univ.Service.Services.Implementations
 
         }
 
-        public void Update(int id, StudentUpdateDto updateDto)
-        {
-            Student entity = _studentRepository.Get(x => x.Id == id && !x.IsDeleted, "Groups");
+		public void Update(int id, StudentUpdateDto updateDto)
+		{
+			Student entity = _studentRepository.Get(x => x.Id == id && !x.IsDeleted, "Groups");
 
-            if (entity.Email != updateDto.Email && _studentRepository.Exists(x => x.Email == updateDto.Email && !x.IsDeleted))
-                throw new RestException(StatusCodes.Status400BadRequest, "Email", "Email already taken");
+			if (entity == null)
+				throw new RestException(StatusCodes.Status404NotFound, "Student not found");
+			if (entity.Email != updateDto.Email && _studentRepository.Exists(x => x.Email == updateDto.Email && !x.IsDeleted))
+				throw new RestException(StatusCodes.Status400BadRequest, "Email", "Email already taken");
+			if (!_groupRepository.Exists(x => x.Id == updateDto.GroupId && !x.IsDeleted))
+				throw new RestException(StatusCodes.Status400BadRequest, "GroupId", "Invalid Group ID");
 
-            if (entity == null) throw new RestException(StatusCodes.Status404NotFound, "Student not found");
+			entity.Fullname = updateDto.FullName;
+			entity.Email = updateDto.Email;
+			entity.BirthDate = updateDto.BirthDate;
+			entity.GroupId = updateDto.GroupId;
+			entity.ModifiedAt = DateTime.Now;
 
-            if(!_groupRepository.Exists(x => x.Id == updateDto.GroupId && !x.IsDeleted))
-                throw new RestException(StatusCodes.Status400BadRequest, "GroupId", "Invalid Group ID");
+			if (updateDto.File != null)
+			{
 
-            entity.Fullname = updateDto.FullName;
-            entity.Email = updateDto.Email;
-            entity.BirthDate = updateDto.BirthDate;
-            entity.GroupId = updateDto.GroupId;
-            entity.ModifiedAt = DateTime.Now;
+				if (!string.IsNullOrEmpty(entity.FileName))
+				{
+					var oldFilePath = Path.Combine("wwwroot", entity.FileName);
+					if (File.Exists(oldFilePath))
+					{
+						File.Delete(oldFilePath);
+					}
+				}
 
-            _groupRepository.Save();
+				entity.FileName = updateDto.File.Save("uploads/students");
+			}
 
-        }
-    }
+			_context.SaveChanges();
+		}
+
+
+	}
 }

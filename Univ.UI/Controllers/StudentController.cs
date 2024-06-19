@@ -199,13 +199,11 @@ namespace Univ.UI.Controllers
 				await LoadGroups();
 				return View(edit);
 			}
-
 			using var content = new MultipartFormDataContent();
 			content.Add(new StringContent(edit.Fullname), "Fullname");
 			content.Add(new StringContent(edit.Email), "Email");
 			content.Add(new StringContent(edit.BirthDate.ToString("dd MM yyyy HH:mm")), "Birthdate");
 			content.Add(new StringContent(edit.GroupId.ToString()), "GroupId");
-
 			if (edit.File != null)
 			{
 				var streamContent = new StreamContent(edit.File.OpenReadStream());
@@ -218,8 +216,6 @@ namespace Univ.UI.Controllers
 
 				content.Add(streamContent, "File", edit.File.FileName);
 			}
-
-
 			using (HttpResponseMessage response = await _client.PutAsync("https://localhost:7068/api/Students/"+id, content))
 			{
 				if (response.IsSuccessStatusCode)
