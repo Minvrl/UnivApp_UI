@@ -96,7 +96,7 @@ namespace Univ.Service.Services.Implementations
 
 		public void Update(int id, StudentUpdateDto updateDto)
 		{
-			Student entity = _studentRepository.Get(x => x.Id == id && !x.IsDeleted, "Groups");
+			Student entity = _studentRepository.Get(x => x.Id == id && !x.IsDeleted, "Group");
 
 			if (entity == null)
 				throw new RestException(StatusCodes.Status404NotFound, "Student not found");

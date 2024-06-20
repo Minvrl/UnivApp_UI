@@ -41,7 +41,7 @@ namespace Univ.API.Controllers
         //}
 
         [HttpPut("{id}")]
-        public ActionResult Update([FromRoute] int id, [FromBody] StudentUpdateDto updateDto)
+        public ActionResult Update([FromRoute] int id, [FromForm] StudentUpdateDto updateDto)
         {
             _studentService.Update(id, updateDto);
             return NoContent();
